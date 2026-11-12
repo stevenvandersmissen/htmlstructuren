@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTML-structuren herkennen — interactieve oefeningen · 5cm</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===== Bovenste balk ===== -->
+<nav class="topbar raised">
+  <div class="brand">
+    <span class="logo">&lt;/&gt;</span>
+    <div>
+      <h1>HTML-structuren herkennen</h1>
+      <p>Interactieve oefeningen · klas 5cm · Informatica / Webdesign</p>
+    </div>
+  </div>
+  <span class="pill">Van screenshot naar steekhoudende HTML</span>
+</nav>
+
+<main>
+
+  <!-- ===== Stap 0: spiekbriefje + kleine theorie (start hier) ===== -->
+  <section class="card raised" id="spiek">
+    <p class="kicker">Stap 0 · Theorie — start hier</p>
+    <h2>Spiekbriefje: welk element kies ik?</h2>
+    <p>
+      Elke webpagina is opgebouwd uit een handvol <strong>vaste bouwblokken</strong>.
+      Ken deze <strong>12 elementen</strong>: de 11 kern-elementen
+      (<code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;article&gt;</code>,
+      <code>&lt;div&gt;</code>, <code>&lt;aside&gt;</code>, <code>&lt;h1&gt;…&lt;h6&gt;</code>, <code>&lt;p&gt;</code>,
+      <code>&lt;img&gt;</code>, <code>&lt;ul&gt;</code>, <code>&lt;table&gt;</code>) plus <code>&lt;footer&gt;</code>.
+      De kleur bij elk element is de <strong>vaste kleurcode</strong> die je ook in de oefeningen en in je opdracht gebruikt.
+    </p>
+    <p class="golden">🌟 Gouden regel: kies het element dat het <strong>best vertelt WAT het blok is</strong> — niet hoe het eruitziet.</p>
+
+    <div class="theory-grid">
+      <div>
+        <h3>Zo zit een typische pagina in elkaar</h3>
+        <div class="well"><pre class="skelet">&lt;body&gt;
+  &lt;header&gt;   logo · zoekbalk · menu       &lt;/header&gt;
+  &lt;nav&gt;      &lt;ul&gt; &lt;li&gt;links …&lt;/li&gt; &lt;/ul&gt; &lt;/nav&gt;
+  &lt;section&gt;
+    &lt;h1&gt; Paginatitel &lt;/h1&gt;
+    &lt;p&gt;   inleiding … &lt;/p&gt;
+    &lt;article&gt; nieuwskaart … &lt;/article&gt;
+  &lt;/section&gt;
+  &lt;aside&gt;    zijkolom … &lt;/aside&gt;
+  &lt;footer&gt;   © · contact · privacy &lt;/footer&gt;
+&lt;/body&gt;</pre></div>
+      </div>
+      <div>
+        <h3>Zo gebruik je dit spiekbriefje</h3>
+        <div class="well theory-note">
+          <ul class="plain">
+            <li>Kijk naar <strong>wat</strong> een blok <em>is</em> (zijn betekenis), niet naar hoe het eruitziet of waar het staat.</li>
+            <li>De <strong>kleur</strong> van een element is overal dezelfde: in deze kaartjes, in het palet van oefening 1 en in je eigen annotaties.</li>
+            <li>Twijfel je? Kies het <strong>specifiekere</strong> element: liever <code>&lt;article&gt;</code> dan <code>&lt;div&gt;</code>, liever <code>&lt;nav&gt;</code> rond een lijst links dan een losse <code>&lt;ul&gt;</code>.</li>
+            <li>Kom je er tijdens de oefeningen niet uit? Scroll terug naar dit spiekbriefje bovenaan.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <h3>De 12 bouwelementen op een rij</h3>
+    <p class="hint">Kleur = vaste kleurcode · “VB” = waar je het ziet in de nep-site van oefening 1.</p>
+    <div class="elem-cards" id="elem-cards"><!-- kaartjes worden door app.js gevuld --></div>
+
+    <h3>Als het blok is … denk dan aan …</h3>
+    <div class="well table-wrap">
+      <table class="rub spiek">
+        <thead><tr><th>Als het blok is …</th><th>… denk aan</th></tr></thead>
+        <tbody>
+          <tr><td>Het hele blok bovenaan met logo + zoekbalk + menu</td><td><code>&lt;header&gt;</code></td></tr>
+          <tr><td>Een rij of kolom met enkel links om ergens heen te gaan</td><td><code>&lt;nav&gt;</code> (vaak rond een <code>&lt;ul&gt;</code>)</td></tr>
+          <tr><td>Een groot, duidelijk afgebakend blok met tussentitel (“Laatste nieuws”, “Uitslagen”)</td><td><code>&lt;section&gt;</code></td></tr>
+          <tr><td>Een stuk dat op zichzelf zou kunnen bestaan (bericht, blogpost, product, review)</td><td><code>&lt;article&gt;</code></td></tr>
+          <tr><td>Iets naast de kern: advertentie, gerelateerde links, nieuwsbrief</td><td><code>&lt;aside&gt;</code></td></tr>
+          <tr><td>Een blokje zonder eigen betekenis, enkel om mee te lay-outen of te stijlen</td><td><code>&lt;div&gt;</code></td></tr>
+          <tr><td>De allergrootste titel van de pagina</td><td><code>&lt;h1&gt;</code> — en maar één keer</td></tr>
+          <tr><td>Tussentitels onder de hoofdtitel</td><td><code>&lt;h2&gt;</code> → <code>&lt;h3&gt;</code> → <code>&lt;h4&gt;</code> (niveaus niet overslaan)</td></tr>
+          <tr><td>Een gewone alinea tekst</td><td><code>&lt;p&gt;</code></td></tr>
+          <tr><td>Een foto, logo of icoon</td><td><code>&lt;img alt="beschrijving"&gt;</code></td></tr>
+          <tr><td>Opsomming zonder volgorde (menu, kenmerken, lijstjes)</td><td><code>&lt;ul&gt;</code> + <code>&lt;li&gt;</code></td></tr>
+          <tr><td>Opsomming mét volgorde (stappen, ranking)</td><td><code>&lt;ol&gt;</code> + <code>&lt;li&gt;</code></td></tr>
+          <tr><td>Rijen × kolommen met verband (uitslagen, rooster, infobox)</td><td><code>&lt;table&gt;</code> + <code>&lt;tr&gt; &lt;th&gt; &lt;td&gt;</code></td></tr>
+          <tr><td>Helemaal onderaan: ©, contact, privacy, kleine links</td><td><code>&lt;footer&gt;</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== Intro + werkwijze + scorebord ===== -->
+  <section class="card raised">
+    <p class="kicker">De oefeningen in het kort</p>
+    <h2>Van spiekbriefje naar oefening</h2>
+    <p>
+      Bovenaan (stap 0) staat het <strong>spiekbriefje</strong> met de kleine theorie over de 12 bouwelementen.
+      Daarna maak je <strong>vijf interactieve oefeningen</strong>: je annoteert een nep-site, koppelt beschrijvingen
+      aan elementen, beantwoordt meerkeuze- en waar/niet-waar-vragen en verbouwt een stuk div-soep.
+      Zo kun je later zelf een template omzetten naar steekhoudende HTML.
+    </p>
+    <div class="summary" id="summary" aria-label="Je score per oefening">
+      <span class="sumchip" id="sum-oef1">Oef 1 · —</span>
+      <span class="sumchip" id="sum-oef2">Oef 2 · —</span>
+      <span class="sumchip" id="sum-oef3">Oef 3 · —</span>
+      <span class="sumchip" id="sum-oef4">Oef 4 · —</span>
+      <span class="sumchip" id="sum-oef5">Oef 5 · —</span>
+    </div>
+    <div class="qnav">
+      <a class="qchip" href="#spiek">0 · Spiekbriefje / theorie</a>
+      <a class="qchip" href="#oef1">1 · Annoteer de site</a>
+      <a class="qchip" href="#oef2">2 · Koppel &amp; kleur</a>
+      <a class="qchip" href="#oef3">3 · Meerkeuze</a>
+      <a class="qchip" href="#oef4">4 · Waar of niet waar</a>
+      <a class="qchip" href="#oef5">5 · Div-soep verbouwen</a>
+      <a class="qchip" href="#opdracht">Opdracht /20</a>
+    </div>
+    <div class="steps">
+      <div class="step"><span class="n">1</span><strong>Screenshot</strong><br>Neem een screenshot van een schoolproof website (volledig scherm).</div>
+      <div class="step"><span class="n">2</span><strong>Kaders</strong><br>Teken kaders rond de structuren in Photoshop of Figma.</div>
+      <div class="step"><span class="n">3</span><strong>Labels</strong><br>Geef elk kader een label met de elementnaam.</div>
+      <div class="step"><span class="n">4</span><strong>Kleurcode</strong><br>Gebruik de vaste kleuren (zie het palet bij oefening 1) + legende.</div>
+      <div class="step"><span class="n">5</span><strong>Inleveren</strong><br>Bestandsnaam <code>Naam_Voornaam_Website.png</code> + reflectie.</div>
+    </div>
+  </section>
+
+  <!-- ===== Oefening 1: annoteren ===== -->
+  <section class="card raised" id="oef1">
+    <div class="ex-head">
+      <div>
+        <p class="kicker">Oefening 1</p>
+        <h2>Annoteer pixelpunt.school</h2>
+      </div>
+      <span class="pill" id="progress">Gelabeld 0/14</span>
+    </div>
+    <p class="hint">💡 Klik op een kader (gestippelde rand) in de website en kies daarna het element in het palet. Geneste kaders? Het binnenste kader wint.</p>
+
+    <div class="ex-grid">
+      <!-- Nep-website -->
+      <div class="browser raised">
+        <div class="browser-bar">
+          <span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span>
+          <span class="url">https://pixelpunt.school</span>
+        </div>
+        <div class="screen well">
+          <div class="zone z-header" data-el="header" role="button" tabindex="0" aria-label="Bovenste balk van de pagina">
+            <span class="logo-sq"></span><span class="brandname">PIXELPUNT</span>
+            <span class="search">🔍 Zoeken…</span>
+            <span class="menu">☰ Menu</span>
+          </div>
+
+          <div class="zone z-nav" data-el="nav" role="button" tabindex="0" aria-label="Menubalk met links">
+            <span class="nchip">Home</span><span class="nchip">Nieuws</span><span class="nchip">Agenda</span><span class="nchip">Contact</span><span class="nchip">Leerlingenraad</span>
+          </div>
+
+          <div class="zone z-section" data-el="section" role="button" tabindex="0" aria-label="Hero-gedeelte bovenaan">
+            <div class="hero">
+              <div class="hero-txt">
+                <div class="zone z-h1" data-el="h1" role="button" tabindex="0" aria-label="Hoofdtitel">
+                  <span class="t1">Welkom op Pixelpunt</span>
+                </div>
+                <div class="zone z-p" data-el="p" role="button" tabindex="0" aria-label="Inleidende alinea">
+                  <span class="tp2">Alles over onze school: nieuws, agenda, lesrooster en plannen van de leerlingenraad.</span>
+                </div>
+                <span class="cta">Lees meer</span>
+              </div>
+              <div class="zone z-img" data-el="img" role="button" tabindex="0" aria-label="Hoofdafbeelding">
+                <span>🖼️ hoofdafbeelding (speelplaats)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="zone z-div" data-el="div" role="button" tabindex="0" aria-label="Inhoudsomhulsel onder de hero">
+            <div class="cards">
+              <div class="zone z-article" data-el="article" role="button" tabindex="0" aria-label="Nieuwskaart 1">
+                <span class="thumb"></span><span class="t3">Nieuws: sportdag</span><span class="tp">Gisteren was het…</span>
+              </div>
+              <div class="zone z-article" data-el="article" role="button" tabindex="0" aria-label="Nieuwskaart 2">
+                <span class="thumb"></span><span class="t3">Project webdesign</span><span class="tp">Inlevering vrijdag…</span>
+              </div>
+              <div class="zone z-article" data-el="article" role="button" tabindex="0" aria-label="Nieuwskaart 3">
+                <span class="thumb"></span><span class="t3">Leerlingenraad</span><span class="tp">Nieuwe leden…</span>
+              </div>
+            </div>
+            <div class="content-row">
+              <div class="zone z-aside" data-el="aside" role="button" tabindex="0" aria-label="Zijkolom naast de kern">
+                <span class="t3">Laatste nieuws</span>
+                <div class="zone z-ul" data-el="ul" role="button" tabindex="0" aria-label="Lijstje met koppen">
+                  <ul>
+                    <li>Sportdag verslag</li>
+                    <li>Nieuw rooster</li>
+                    <li>Ouderavond</li>
+                    <li>Bibliotheek update</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="zone z-table" data-el="table" role="button" tabindex="0" aria-label="Tabel met lesrooster">
+                <table>
+                  <tr><th>Dag</th><th>1e les</th><th>2e les</th></tr>
+                  <tr><td>Ma</td><td>Wiskunde</td><td>Informatica</td></tr>
+                  <tr><td>Wo</td><td>Nederlands</td><td>Webdesign</td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="zone z-footer" data-el="footer" role="button" tabindex="0" aria-label="Onderste balk van de pagina">
+            © Pixelpunt · Contact · Privacy · Sitemap
+          </div>
+        </div>
+      </div>
+
+      <!-- Palet + knoppen -->
+      <aside class="side">
+        <div class="well feedback" id="feedback" aria-live="polite">
+          Klik op een kader (gestippelde rand) in de website en kies daarna het element uit het palet.
+        </div>
+        <h3 class="pal-title">Kies het element <span>(kleurcode = legende)</span></h3>
+        <div class="palette" id="palette"></div>
+        <div class="controls">
+          <button class="btn primary" id="btn-check" type="button">Controleer</button>
+          <button class="btn" id="btn-solution" type="button">Toon oplossing</button>
+          <button class="btn" id="btn-reset" type="button">Opnieuw</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===== Oefening 2: koppelen ===== -->
+  <section class="card raised" id="oef2">
+    <div class="ex-head">
+      <div>
+        <p class="kicker">Oefening 2</p>
+        <h2>Koppel &amp; kleur: beschrijving → element</h2>
+      </div>
+      <span class="pill" id="pill2">0/10 gekoppeld</span>
+    </div>
+    <p class="hint">💡 Klik eerst op een beschrijving links en daarna op het element dat erbij hoort. Juiste koppels klikken vast; bij een fout schudden beide even.</p>
+    <div class="match-wrap">
+      <div class="m-desc" id="mdesc"></div>
+      <div class="m-elems" id="melems"></div>
+    </div>
+    <div class="well feedback" id="fb2" aria-live="polite">Kies een beschrijving om te beginnen.</div>
+    <div class="controls">
+      <button class="btn" id="btn2-reset" type="button">Opnieuw</button>
+    </div>
+  </section>
+
+  <!-- ===== Oefening 3: meerkeuze ===== -->
+  <section class="card raised" id="oef3">
+    <div class="ex-head">
+      <div>
+        <p class="kicker">Oefening 3</p>
+        <h2>Meerkeuze: kies het beste element</h2>
+      </div>
+      <span class="pill" id="pill3">0/6 beantwoord</span>
+    </div>
+    <p class="hint">💡 Kies per vraag één antwoord en druk daarna op <strong>Controleer</strong>. Je krijgt bij elke vraag een korte uitleg.</p>
+    <div id="quiz"></div>
+    <div class="well feedback" id="fb3" aria-live="polite">Kies eerst je antwoorden en druk dan op Controleer.</div>
+    <div class="controls">
+      <button class="btn primary" id="btn3-check" type="button">Controleer</button>
+      <button class="btn" id="btn3-reset" type="button">Opnieuw</button>
+    </div>
+  </section>
+
+  <!-- ===== Oefening 4: waar / niet waar ===== -->
+  <section class="card raised" id="oef4">
+    <div class="ex-head">
+      <div>
+        <p class="kicker">Oefening 4</p>
+        <h2>Waar of niet waar?</h2>
+      </div>
+      <span class="pill" id="pill4">0/6 beantwoord</span>
+    </div>
+    <p class="hint">💡 Beoordeel elke bewering meteen. Na je keuze zie je het juiste antwoord en een uitleg; de bewering valt daarna vast.</p>
+    <div id="tflist"></div>
+    <div class="well feedback" id="fb4" aria-live="polite">Beoordeel de zes beweringen hierboven.</div>
+    <div class="controls">
+      <button class="btn" id="btn4-reset" type="button">Opnieuw</button>
+    </div>
+  </section>
+
+  <!-- ===== Oefening 5: div-soep ===== -->
+  <section class="card raised" id="oef5">
+    <div class="ex-head">
+      <div>
+        <p class="kicker">Oefening 5</p>
+        <h2>Div-soep verbouwen</h2>
+      </div>
+      <span class="pill" id="pill5">0/5 juist</span>
+    </div>
+    <p class="hint">💡 Deze code is pure “div-soep”: alles is een <code>&lt;div&gt;</code>. Kies per regel het semantisch beste element en controleer daarna.</p>
+    <div class="well soep" id="soep"></div>
+    <div class="well feedback" id="fb5" aria-live="polite">Kies per regel een element uit de lijst en druk dan op Controleer.</div>
+    <div class="controls">
+      <button class="btn primary" id="btn5-check" type="button">Controleer</button>
+      <button class="btn" id="btn5-solution" type="button">Toon oplossing</button>
+      <button class="btn" id="btn5-reset" type="button">Opnieuw</button>
+    </div>
+  </section>
+
+  <!-- ===== Voorbeelden uit de cursus ===== -->
+  <section class="card raised">
+    <p class="kicker">Uit het cursusdossier</p>
+    <h2>Zo zien echte screenshots eruit</h2>
+    <p>Screenshots genomen op 10 november 2026 (desktop, 1440 × 900) — schoolproof en didactisch gebruikt.</p>
+    <div class="shots">
+      <figure class="raised-s">
+        <img src="assets/wiki_anno.png" alt="Wikipedia-artikel België geannoteerd" loading="lazy" onerror="this.closest('figure').style.display='none'">
+        <figcaption>nl.wikipedia.org — “België”: header, nav, article, h1, p, infobox-table, aside</figcaption>
+      </figure>
+      <figure class="raised-s">
+        <img src="assets/nasa_anno.png" alt="NASA homepage geannoteerd" loading="lazy" onerror="this.closest('figure').style.display='none'">
+        <figcaption>nasa.gov: header, 2× nav, hero-section, h1, p, div-kolommen, h2</figcaption>
+      </figure>
+      <figure class="raised-s">
+        <img src="assets/nos_anno.png" alt="NOS homepage geannoteerd" loading="lazy" onerror="this.closest('figure').style.display='none'">
+        <figcaption>nos.nl: header, nav-chips, article-hero, img, h2, aside (reclame + laatste nieuws), ul, div</figcaption>
+      </figure>
+      <figure class="raised-s">
+        <img src="assets/ketnet_anno.png" alt="Ketnet homepage geannoteerd" loading="lazy" onerror="this.closest('figure').style.display='none'">
+        <figcaption>ketnet.be: header, nav-zijbalk, section-hero, section-kaartenrij, article, img</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===== De opdracht ===== -->
+  <section class="card raised" id="opdracht">
+    <p class="kicker">Opdracht</p>
+    <h2>Mijn website-structurenmap (/20)</h2>
+    <p>Nu jij: kies een <strong>schoolproof</strong> website, maak een screenshot en annoteer de structuren zoals in oefening 1.</p>
+    <div class="two-col">
+      <div>
+        <h3>Eisen</h3>
+        <ul class="check">
+          <li>Kies een schoolproof website uit de lijst hiernaast (of vraag het aan de leerkracht).</li>
+          <li>Maak een screenshot van de homepagina (volledig scherm, desktop).</li>
+          <li>Teken <strong>minstens 10 kaders</strong> rond structuren en label elk met het juiste element.</li>
+          <li>Gebruik <strong>minstens 8 kern-elementen</strong> en teken minstens <strong>1 genest kader</strong> (kader in een kader).</li>
+          <li>Gebruik de vaste kleurcode en voeg een <strong>legende</strong> toe.</li>
+          <li>Zet je naam, de URL en de datum op de afbeelding.</li>
+          <li>Schrijf een <strong>reflectie van 8–10 regels</strong>: welk element was moeilijk? Waarom kies je <code>&lt;article&gt;</code> en niet <code>&lt;div&gt;</code>?</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Schoolproof websites</h3>
+        <div class="sites">
+          <span class="site">nl.wikipedia.org</span>
+          <span class="site">nasa.gov</span>
+          <span class="site">nos.nl</span>
+          <span class="site">ketnet.be</span>
+          <span class="site">sporza.be</span>
+          <span class="site">esa.int</span>
+          <span class="site">statbel.fgov.be</span>
+          <span class="site">knmi.nl</span>
+          <span class="site">natuurpunt.be</span>
+          <span class="site">jouw schoolwebsite</span>
+        </div>
+        <h3>Inleveren</h3>
+        <div class="well inlever">
+          Bestandsnaam: <code>Naam_Voornaam_Website.png</code> (of .pdf)<br>
+          Via het schoolplatform · deadline: zie Smartschool<br>
+          <strong>Geen</strong> ongepaste inhoud (volwassen content, gokken of alcohol) — controleer eerst!
+        </div>
+      </div>
+    </div>
+
+    <h3>Rubriek (/20)</h3>
+    <div class="well table-wrap">
+      <table class="rub">
+        <thead>
+          <tr><th>Criterium</th><th>Punten</th><th>Wat er verwacht wordt</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Volledigheid</strong></td><td class="pts">/ 6</td><td>Minstens 10 kaders, alle belangrijke zones van de pagina, minstens 1 genest kader.</td></tr>
+          <tr><td><strong>Juistheid labels</strong></td><td class="pts">/ 5</td><td>Elk kader heeft het semantisch beste element (niet het “makkelijke” &lt;div&gt;).</td></tr>
+          <tr><td><strong>Netheid</strong></td><td class="pts">/ 3</td><td>Kaders lopen netjes rond het blok, geen overlap, leesbare labels, vaste kleurcode.</td></tr>
+          <tr><td><strong>Reflectie</strong></td><td class="pts">/ 4</td><td>8–10 regels, eigen woorden, minstens één “waarom”-vraag beantwoord.</td></tr>
+          <tr><td><strong>Inlevering</strong></td><td class="pts">/ 2</td><td>Juiste bestandsnaam, legende, naam + URL + datum op de afbeelding, op tijd.</td></tr>
+          <tr class="total"><td><strong>Totaal</strong></td><td class="pts">/ 20</td><td>Vanaf 10/20 ben je geslaagd.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer class="raised">
+  <span>HTML-structuren herkennen · 5cm · november 2026</span>
+  <span>Screenshots: 10 november 2026 · didactisch gebruik, bronvermelding in het cursusdossier</span>
+</footer>
+
+<noscript><p style="text-align:center;padding:20px">Deze oefeningen hebben JavaScript nodig om te werken.</p></noscript>
+<script src="app.js"></script>
+</body>
+</html>
