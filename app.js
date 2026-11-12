@@ -1,6 +1,17 @@
 /* HTML-structuren herkennen — interactieve oefeningen (5cm)
    Vijf oefeningen: 1 annoteer de nep-site, 2 koppel beschrijving aan element,
-   3 meerkeuze, 4 waar/niet waar, 5 div-soep verbouwen. */
+   3 meerkeuze, 4 waar/niet waar, 5 div-soep verbouwen.
+
+   Wijzigingen t.o.v. vorige versie:
+   - badge-bug bij geneste kaders opgelost (oef 1)
+   - "Toon oplossing" geeft geen groene volle score meer (oef 1 en 5)
+   - oef 5: eerst controleren op lege regels, daarna pas markeren
+   - oef 5: neutrale klassenamen, section/div erbij, volgorde geschud
+   - oef 4: cookiebanner-vraag vervangen, 3x waar / 3x niet waar, volgorde geschud
+   - oef 3: antwoordvolgorde geschud, h1-vraag gepreciseerd, pijltjestoetsen voor radio's
+   - theorie-kaartjes (header, section, div) rechtgezet
+   - kleine toegankelijkheidsverbeteringen (aria-label, aria-pressed)
+*/
 (function () {
   "use strict";
 
@@ -28,6 +39,13 @@
     return a;
   }
 
+  /* zorg dat het hidden-attribuut altijd wint van een display uit styles.css */
+  (function ensureHidden() {
+    var st = document.createElement("style");
+    st.textContent = "[hidden]{display:none !important}";
+    document.head.appendChild(st);
+  })();
+
   /* ---------- vaste kleurcode (zelfde als in het cursusdossier) ---------- */
   var ELEMS = [
     { el: "header",  label: "<header>",      c: "#E8590C" },
@@ -48,13 +66,13 @@
 
   /* ---------- stap 0: theorie-kaartjes in het spiekbriefje (zelfde kleurcode) ---------- */
   var THEORY = {
-    header:  { wat: "De balk bovenaan (of onderaan) met logo, zoekbalk en menu. Staat los van de eigenlijke inhoud.", vb: "PIXELPUNT-logo + 🔍 Zoeken + ☰ Menu" },
-    nav:     { wat: "Een groep links om ergens heen te gaan — vaak zit er een `<ul>` in.", vb: "Home · Nieuws · Agenda · Contact" },
-    section: { wat: "Een groot, afgebakend blok rond één thema, met een eigen tussentitel (h2).", vb: "de hero met “Welkom op Pixelpunt”" },
+    header:  { wat: "De balk bovenaan met logo, zoekbalk en menuknop. Staat los van de eigenlijke inhoud.", vb: "PIXELPUNT-logo + 🔍 Zoeken + ☰ Menu" },
+    nav:     { wat: "Een groep links om ergens heen te gaan — vaak zit er een `<ul>` in. De rij links is de `<nav>`; de menuknop in de header hoort bij de `<header>`.", vb: "Home · Nieuws · Agenda · Contact" },
+    section: { wat: "Een groot, afgebakend blok rond één thema, met een eigen kop (h1, h2, …).", vb: "de hero met “Welkom op Pixelpunt”" },
     article: { wat: "Inhoud die op zichzelf kan staan: nieuwsbericht, blogpost, product, review.", vb: "een nieuwskaart in de kaartenrij" },
     aside:   { wat: "Inhoud naast de kern: advertentie, gerelateerde links, nieuwsbrief.", vb: "de kolom “Laatste nieuws”" },
-    div:     { wat: "Geen eigen betekenis — enkel voor lay-out of styling. Altijd je laatste keuze.", vb: "de wrapper rond de kaartenrij" },
-    h1:      { wat: "Titels in hiërarchie: precies één `<h1>` per pagina, daarna h2 → h6 zonder een niveau over te slaan.", vb: "“Welkom op Pixelpunt” = h1" },
+    div:     { wat: "Geen eigen betekenis — enkel voor lay-out of styling. Altijd je laatste keuze.", vb: "de wrapper rond de inhoud onder de hero" },
+    h1:      { wat: "Titels in hiërarchie: best één `<h1>` per pagina, daarna h2 → h6 zonder een niveau over te slaan.", vb: "“Welkom op Pixelpunt” = h1" },
     p:       { wat: "Een gewone alinea lopende tekst.", vb: "de inleiding onder de hoofdtitel" },
     img:     { wat: "Een foto, logo of icoon. Vergeet nooit het `alt`-attribuut.", vb: "de hoofdafbeelding (speelplaats)" },
     ul:      { wat: "Opsomming zonder volgorde (bullets). Is de volgorde wél belangrijk? → `<ol>`.", vb: "het lijstje onder “Laatste nieuws”" },
@@ -99,14 +117,23 @@
   var selected = null;
   var labels = new Map();
   var checkedOnce = false;
+  var usedSolution1 = false;
 
   function say(node, msg) { node.innerHTML = msg; }
+
+  /* enkel de badge van déze zone, niet die van een kindzone */
+  function ownBadge(zone) {
+    for (var i = 0; i < zone.children.length; i++) {
+      if (zone.children[i].classList.contains("badge")) return zone.children[i];
+    }
+    return null;
+  }
 
   function paint(zone) {
     var meta = byEl[labels.get(zone)];
     zone.style.setProperty("--zc", meta.c);
     zone.classList.add("labeled");
-    var badge = zone.querySelector(".badge");
+    var badge = ownBadge(zone);
     if (!badge) {
       badge = document.createElement("span");
       badge.className = "badge";
@@ -117,7 +144,7 @@
   function clearPaint(zone) {
     zone.classList.remove("labeled", "ok", "bad");
     zone.style.removeProperty("--zc");
-    var badge = zone.querySelector(".badge");
+    var badge = ownBadge(zone);
     if (badge) badge.remove();
   }
   function correctCount() {
@@ -127,7 +154,8 @@
   }
   function updateProgress() {
     progress.textContent = "Gelabeld " + labels.size + "/" + zones.length +
-      (checkedOnce ? " · Juist " + correctCount() + "/" + zones.length : "");
+      (checkedOnce ? " · Juist " + correctCount() + "/" + zones.length : "") +
+      (usedSolution1 ? " · oplossing getoond" : "");
   }
   function select(zone) {
     zones.forEach(function (z) { z.classList.remove("selected"); });
@@ -183,14 +211,16 @@
     });
     updateProgress();
     var total = zones.length;
-    if (ok === total) {
+    if (ok === total && usedSolution1) {
+      say(feedback, "👀 " + ok + "/" + total + " — maar je hebt de oplossing bekeken. Druk op <strong>Opnieuw</strong> en probeer het zelf voor een eerlijke score.");
+    } else if (ok === total) {
       say(feedback, "🎉 Perfect! " + ok + "/" + total + " kaders juist — je kent de bouwblokken van het web. Door naar oefening 2!");
     } else {
       say(feedback, "📊 " + ok + "/" + total + " juist" +
         (unlabeled ? " · nog " + unlabeled + " kader(s) zonder label" : "") +
         ". Foute kaders krijgen een rode rand met ✗. Je kunt elk kader afzonderlijk opnieuw labelen en daarna opnieuw controleren. Tip: het spiekbriefje bovenaan (stap 0)!");
     }
-    setSum(1, ok + "/" + total, ok === total);
+    setSum(1, ok + "/" + total + (usedSolution1 ? " · met oplossing" : ""), ok === total && !usedSolution1);
   });
 
   $("btn-solution").addEventListener("click", function () {
@@ -200,15 +230,17 @@
       z.classList.add("ok");
       z.classList.remove("bad");
     });
-    checkedOnce = true;
+    usedSolution1 = true;
+    checkedOnce = false;
     updateProgress();
-    say(feedback, "👀 Oplossing getoond: " + zones.length + "/" + zones.length + ". Vergelijk met je eigen labels — druk op <strong>Opnieuw</strong> om het zelf te proberen.");
+    say(feedback, "👀 Oplossing getoond. Vergelijk met je eigen labels — druk op <strong>Opnieuw</strong> om het zelf te proberen.");
     setSum(1, "oplossing bekeken", false);
   });
 
   $("btn-reset").addEventListener("click", function () {
     labels.clear();
     checkedOnce = false;
+    usedSolution1 = false;
     selected = null;
     zones.forEach(function (z) { z.classList.remove("selected"); clearPaint(z); });
     updateProgress();
@@ -225,7 +257,7 @@
     { el: "table",  t: "Rijen × kolommen mét verband: een lesrooster, uitslagen of een infobox." },
     { el: "header", t: "Het hele blok bovenaan de pagina met logo, zoekbalk en menuknoppen." },
     { el: "article",t: "Een zelfstandig stuk inhoud dat ook los zou kunnen bestaan: een nieuwsbericht of een review." },
-    { el: "h1",     t: "De allergrootste titel van de pagina — staat er precies één keer." },
+    { el: "h1",     t: "De allergrootste titel van de pagina — daar hoort er best maar één van." },
     { el: "ul",     t: "Een lijstje met opsommingstekens waarbij de volgorde niets uitmaakt." },
     { el: "aside",  t: "Zijdelingse inhoud naast de kern: een advertentie, gerelateerde links of een nieuwsbrief." },
     { el: "p",      t: "Een gewone alinea lopende tekst." },
@@ -253,11 +285,16 @@
       d.type = "button";
       d.className = "mdesc";
       d.dataset.el = item.el;
+      d.setAttribute("aria-pressed", "false");
       d.textContent = item.t;
       d.addEventListener("click", function () {
         if (d.classList.contains("locked")) return;
-        Array.prototype.forEach.call(mDescBox.children, function (c) { c.classList.remove("selected"); });
+        Array.prototype.forEach.call(mDescBox.children, function (c) {
+          c.classList.remove("selected");
+          c.setAttribute("aria-pressed", "false");
+        });
         d.classList.add("selected");
+        d.setAttribute("aria-pressed", "true");
         mSel = d;
         say(fb2, "Beschrijving gekozen 👉 klik nu rechts op het element dat erbij hoort.");
       });
@@ -280,15 +317,16 @@
         if (!mSel) { say(fb2, "⚠️ Klik eerst links op een beschrijving."); return; }
         if (mSel.dataset.el === meta.el) {
           mSel.classList.remove("selected");
+          mSel.setAttribute("aria-pressed", "false");
           mSel.classList.add("locked");
           b.classList.add("locked");
           mSel = null; mLocked++;
           updatePill2();
           if (mLocked === MATCH.length) {
             say(fb2, mFaults === 0
-              ? "🎉 Alle 10 koppels juist, en dat in één poging per koppel — strak werk!"
-              : "🎉 Alle 10 koppels juist, met " + mFaults + " foute poging" + (mFaults === 1 ? "" : "en") + " tussendoor. Bekijk zeker ook oefening 3!");
-            setSum(2, mFaults === 0 ? "10/10" : "10/10 · " + mFaults + " fout", mFaults === 0);
+              ? "🎉 Alle " + MATCH.length + " koppels juist, en dat in één poging per koppel — strak werk!"
+              : "🎉 Alle " + MATCH.length + " koppels juist, met " + mFaults + " foute poging" + (mFaults === 1 ? "" : "en") + " tussendoor. Bekijk zeker ook oefening 3!");
+            setSum(2, mFaults === 0 ? MATCH.length + "/" + MATCH.length : MATCH.length + "/" + MATCH.length + " · " + mFaults + " fout", mFaults === 0);
           } else {
             say(fb2, "✅ Juist! <strong>" + esc(meta.label) + "</strong> vastgeklikt. Nog " + (MATCH.length - mLocked) + " te gaan.");
           }
@@ -311,6 +349,7 @@
 
   /* =========================================================
      OEFENING 3 — meerkeuze
+     (de antwoordvolgorde wordt bij elke poging geschud)
      ========================================================= */
   var QUIZ = [
     { q: "Je tekent een kader rond de balk met “Home · Nieuws · Agenda · Contact”. Welk element past het best?",
@@ -319,9 +358,9 @@
     { q: "Een nieuwsbericht op de schoolsite dat integraal op een andere site zou kunnen staan, is …",
       opts: ["`<section>`", "`<article>`", "`<div>`", "`<p>`"], a: 1,
       expl: "`<article>` is inhoud die op zichzelf kan staan (bericht, blogpost, review). `<section>` groepeert blokken rond één thema." },
-    { q: "Hoeveel `<h1>`'s mogen er op één pagina staan?",
-      opts: ["Precies één", "Evenveel als je wil", "Twee: één voor de site en één voor het artikel", "Zes, één per heading-niveau"], a: 0,
-      expl: "De `<h1>` is de paginatitel en komt één keer voor. Daaronder bouw je met `<h2>` tot `<h6>`, zonder niveaus over te slaan." },
+    { q: "Hoeveel `<h1>`'s hoort er best op één pagina te staan?",
+      opts: ["Best precies één", "Zoveel als je wil", "Twee: één voor de site en één voor het artikel", "Zes, één per heading-niveau"], a: 0,
+      expl: "De `<h1>` is de paginatitel en komt best één keer voor. Daaronder bouw je met `<h2>` tot `<h6>`, zonder niveaus over te slaan." },
     { q: "Het blok “Gerelateerde artikels” naast een nieuwsbericht is …",
       opts: ["`<nav>`", "`<section>`", "`<aside>`", "`<footer>`"], a: 2,
       expl: "Inhoud die náást de kern staat en niet essentieel is: `<aside>`. Een echte linkbalk naar andere pagina's zou wel `<nav>` zijn." },
@@ -329,7 +368,10 @@
       opts: ["`<div>` met CSS-grid", "`<ul>`", "`<table>`", "`<ol>`"], a: 2,
       expl: "Tabeldata hoort in een `<table>`. Kolommen voor pure lay-out? Dan CSS-grid of flexbox, géén tabel." },
     { q: "Waarvoor dient het `alt`-attribuut van `<img>`?",
-      opts: ["Als beschrijving voor schermlezers en wanneer de afbeelding niet laadt", "Enkel om gevonden te worden in Google", "Als bijschrift onder de foto", "Om de bestandsnaam te tonen"], a: 0,
+      opts: ["Een beschrijving voor schermlezers, ook zichtbaar als de afbeelding niet laadt",
+             "Een bijschrift dat zichtbaar onder de foto verschijnt",
+             "Een titel die enkel zoekmachines te zien krijgen",
+             "De bestandsnaam van de afbeelding op de server"], a: 0,
       expl: "Een schermlezer leest de alt-tekst voor en de tekst verschijnt ook als de afbeelding niet laadt. Een bijschrift onder de foto is aparte tekst." }
   ];
   var quizBox = $("quiz"), fb3 = $("fb3"), pill3 = $("pill3");
@@ -344,31 +386,52 @@
     pill3.textContent = "0/" + QUIZ.length + " beantwoord";
     say(fb3, "Kies eerst je antwoorden en druk dan op Controleer.");
     QUIZ.forEach(function (item, i) {
-      var st = { pick: -1, done: false };
+      var order = shuffle(item.opts.map(function (t, k) { return { t: t, ok: k === item.a }; }));
+      var correct = 0;
+      order.forEach(function (o, k) { if (o.ok) correct = k; });
+      var st = { pick: -1, done: false, correct: correct };
       qState.push(st);
       var q = make("div", "q well");
       q.appendChild(make("p", "q-title", "<strong>Vraag " + (i + 1) + ".</strong> " + fmt(item.q)));
       var opts = make("div", "opts");
       opts.setAttribute("role", "radiogroup");
-      item.opts.forEach(function (optText, oi) {
+      opts.setAttribute("aria-label", "Antwoorden bij vraag " + (i + 1));
+
+      var buttons = [];
+      function choose(oi) {
+        if (st.done) return;
+        st.pick = oi;
+        buttons.forEach(function (c, ci) {
+          var on = ci === oi;
+          c.classList.toggle("picked", on);
+          c.setAttribute("aria-checked", on ? "true" : "false");
+          c.tabIndex = on ? 0 : -1;
+        });
+        pill3.textContent = answeredCount() + "/" + QUIZ.length + " beantwoord";
+      }
+
+      order.forEach(function (opt, oi) {
         var o = document.createElement("button");
         o.type = "button";
         o.className = "opt";
         o.setAttribute("role", "radio");
         o.setAttribute("aria-checked", "false");
+        o.tabIndex = oi === 0 ? 0 : -1;
         o.appendChild(make("span", "odot"));
-        o.appendChild(make("span", null, fmt(optText)));
-        o.addEventListener("click", function () {
-          if (st.done) return;
-          st.pick = oi;
-          Array.prototype.forEach.call(opts.children, function (c) {
-            c.classList.remove("picked");
-            c.setAttribute("aria-checked", "false");
-          });
-          o.classList.add("picked");
-          o.setAttribute("aria-checked", "true");
-          pill3.textContent = answeredCount() + "/" + QUIZ.length + " beantwoord";
+        o.appendChild(make("span", null, fmt(opt.t)));
+        o.addEventListener("click", function () { choose(oi); });
+        /* pijltjestoetsen, zoals een echte radiogroep */
+        o.addEventListener("keydown", function (e) {
+          var next = -1;
+          if (e.key === "ArrowDown" || e.key === "ArrowRight") next = (oi + 1) % buttons.length;
+          else if (e.key === "ArrowUp" || e.key === "ArrowLeft") next = (oi - 1 + buttons.length) % buttons.length;
+          if (next >= 0) {
+            e.preventDefault();
+            buttons[next].focus();
+            choose(next);
+          }
         });
+        buttons.push(o);
         opts.appendChild(o);
       });
       q.appendChild(opts);
@@ -386,16 +449,16 @@
     }
     var ok = 0;
     qState.forEach(function (s, i) {
-      if (s.done) { if (s.pick === QUIZ[i].a) ok++; return; }
+      if (s.done) { if (s.pick === s.correct) ok++; return; }
       s.done = true;
       var q = quizBox.children[i];
       q.classList.add("done");
-      var good = s.pick === QUIZ[i].a;
+      var good = s.pick === s.correct;
       if (good) ok++;
       Array.prototype.forEach.call(q.querySelector(".opts").children, function (c, ci) {
         c.classList.remove("picked");
         if (ci === s.pick) c.classList.add(good ? "ok" : "bad");
-        if (!good && ci === QUIZ[i].a) c.classList.add("reveal");
+        if (!good && ci === s.correct) c.classList.add("reveal");
       });
       q.querySelector(".expl").hidden = false;
     });
@@ -412,20 +475,21 @@
 
   /* =========================================================
      OEFENING 4 — waar of niet waar
+     (3 × waar, 3 × niet waar; volgorde wordt geschud)
      ========================================================= */
   var TF = [
     { s: "Een `<nav>` mag alleen bovenaan de pagina staan.", a: false,
       expl: "Ook een zijbalk- of footermenu is `<nav>`: de rol (links om ergens heen te gaan) telt, niet de plek." },
     { s: "Een `<div>` heeft geen eigen betekenis: je gebruikt het enkel voor lay-out of styling.", a: true,
       expl: "Correct. Daarom is `<div>` je laatste keuze: kijk eerst of een semantisch element beter past." },
-    { s: "Je mag heading-niveaus overslaan: na `<h2>` gewoon `<h4>` gebruiken.", a: false,
-      expl: "Sla geen niveaus over: schermlezers en zoekmachines gebruiken de heading-hiërarchie als inhoudsopgave van de pagina." },
+    { s: "Na een `<h2>` volg je best met een `<h3>` en sla je geen heading-niveau over.", a: true,
+      expl: "Correct: schermlezers en zoekmachines gebruiken de heading-hiërarchie als inhoudsopgave van de pagina. Van `<h2>` meteen naar `<h4>` springen laat een gat vallen." },
     { s: "Een `<article>` moet altijd binnen een `<section>` staan.", a: false,
       expl: "Ze staan los van elkaar: de nesting volgt de inhoud. Een artikel met onderdelen kan zelfs zelf sections bevatten." },
     { s: "In een `<ul>` is de volgorde van de items belangrijk.", a: false,
       expl: "Dat is `<ol>` (ordered list). `<ul>` is voor lijstjes zonder volgorde: menu's, kenmerken, koppen." },
-    { s: "Een cookiebanner die over de pagina zweeft, hoort niet bij de hoofdstructuur: `<div>` of `<aside>` is prima.", a: true,
-      expl: "Correct: het is een losse functionele laag naast of over de inhoud. Een advertentie of “laatste nieuws”-kolom is dan weer een typische `<aside>`." }
+    { s: "Een `<footer>` mag ook binnen een `<article>` staan, bijvoorbeeld met de auteur en de datum van dat bericht.", a: true,
+      expl: "Correct: een `<footer>` sluit het blok af waarin hij staat. Het spiekbriefje toont de paginafooter, maar ook een artikel kan een eigen footer hebben." }
   ];
   var tfBox = $("tflist"), fb4 = $("fb4"), pill4 = $("pill4");
   var tfAnswered = 0, tfOk = 0;
@@ -435,11 +499,13 @@
     tfAnswered = 0; tfOk = 0;
     pill4.textContent = "0/" + TF.length + " beantwoord";
     say(fb4, "Beoordeel de zes beweringen hierboven.");
-    TF.forEach(function (item) {
+    shuffle(TF).forEach(function (item) {
       var done = false;
       var box = make("div", "tf-item well");
       box.appendChild(make("p", "tf-s", fmt(item.s)));
       var btns = make("div", "tfbtns");
+      btns.setAttribute("role", "group");
+      btns.setAttribute("aria-label", "Waar of niet waar");
       var expl = make("p", "expl", "<strong>Juist antwoord: " + (item.a ? "waar" : "niet waar") + ".</strong> " + fmt(item.expl));
       expl.hidden = true;
       [true, false].forEach(function (val) {
@@ -484,22 +550,27 @@
 
   /* =========================================================
      OEFENING 5 — div-soep verbouwen
+     (neutrale klassenamen zodat ze het antwoord niet verklappen)
      ========================================================= */
   var SOEP = [
-    { code: '<div class="site-kop">', hint: "logo + zoekbalk + menuknoppen bovenaan", a: "header" },
-    { code: '<div class="menu">',     hint: "lijst met links naar andere pagina's",   a: "nav" },
-    { code: '<div class="bericht">',  hint: "zelfstandig nieuwsbericht",               a: "article" },
-    { code: '<div class="opsomming">',hint: "lijstje met bullets, volgorde maakt niet uit", a: "ul" },
-    { code: '<div class="voet">',     hint: "© + contact + privacy helemaal onderaan", a: "footer" }
+    { code: '<div class="blok-1">', hint: "logo + zoekbalk + menuknop helemaal bovenaan de pagina", a: "header" },
+    { code: '<div class="blok-2">', hint: "balk met links naar andere pagina's",                   a: "nav" },
+    { code: '<div class="blok-3">', hint: "groot afgebakend blok met eigen kop “Agenda” en inhoud eronder", a: "section" },
+    { code: '<div class="blok-4">', hint: "zelfstandig nieuwsbericht dat ook los kan bestaan",      a: "article" },
+    { code: '<div class="blok-5">', hint: "opsomming met bullets, volgorde maakt niet uit",         a: "ul" },
+    { code: '<div class="blok-6">', hint: "wrapper zonder eigen betekenis, enkel om kaarten naast elkaar te zetten", a: "div" },
+    { code: '<div class="blok-7">', hint: "© + contact + privacy helemaal onderaan",                a: "footer" }
   ];
   var SOEP_OPTS = ["header", "nav", "section", "article", "aside", "div", "ul", "table", "footer"];
   var soepBox = $("soep"), fb5 = $("fb5"), pill5 = $("pill5");
+  var usedSolution5 = false;
 
   function buildSoep() {
     soepBox.innerHTML = "";
+    usedSolution5 = false;
     pill5.textContent = "0/" + SOEP.length + " juist";
     say(fb5, "Kies per regel een element uit de lijst en druk dan op Controleer.");
-    SOEP.forEach(function (row) {
+    shuffle(SOEP).forEach(function (row, idx) {
       var r = make("div", "soep-row");
       r.dataset.a = row.a;
       var code = document.createElement("code");
@@ -509,43 +580,63 @@
       r.appendChild(make("span", "soep-hint", esc(row.hint)));
       var sel = document.createElement("select");
       sel.className = "neu-select";
+      sel.setAttribute("aria-label", "Element voor regel " + (idx + 1) + ": " + row.hint);
       sel.appendChild(new Option("kies …", ""));
       SOEP_OPTS.forEach(function (o) {
         sel.appendChild(new Option("<" + o + ">", o));
       });
-      sel.addEventListener("change", function () { r.classList.remove("ok", "bad"); r.querySelector(".soep-mark").textContent = ""; });
+      sel.addEventListener("change", function () {
+        r.classList.remove("ok", "bad");
+        r.querySelector(".soep-mark").textContent = "";
+      });
       r.appendChild(sel);
       r.appendChild(make("span", "soep-mark", ""));
       soepBox.appendChild(r);
     });
   }
   function checkSoep(showSolution) {
-    var ok = 0, open = 0;
-    Array.prototype.forEach.call(soepBox.children, function (r, i) {
+    var rows = Array.prototype.slice.call(soepBox.children);
+
+    if (showSolution) {
+      usedSolution5 = true;
+      rows.forEach(function (r) { r.querySelector("select").value = r.dataset.a; });
+    } else {
+      /* eerst controleren of alles ingevuld is, pas daarna markeren */
+      var open = rows.filter(function (r) { return !r.querySelector("select").value; }).length;
+      if (open) {
+        say(fb5, "⚠️ Kies eerst voor elke regel een element (" + open + " regel(s) nog leeg).");
+        return;
+      }
+    }
+
+    var ok = 0;
+    rows.forEach(function (r) {
       var sel = r.querySelector("select");
       var mark = r.querySelector(".soep-mark");
-      if (showSolution) sel.value = SOEP[i].a;
-      if (!sel.value) { open++; return; }
       var good = sel.value === r.dataset.a;
       r.classList.remove("ok", "bad");
       r.classList.add(good ? "ok" : "bad");
       mark.textContent = good ? "✓" : "✗";
       if (good) ok++;
     });
-    if (!showSolution && open) {
-      say(fb5, "⚠️ Kies eerst voor elke regel een element (" + open + " regel(s) nog leeg).");
-      return;
-    }
-    pill5.textContent = ok + "/" + SOEP.length + " juist" + (showSolution ? " (oplossing)" : "");
+
+    var total = SOEP.length;
     if (showSolution) {
-      say(fb5, "👀 Oplossing getoond. Let op het patroon: kop → <strong>header</strong>, links → <strong>nav</strong>, zelfstandig bericht → <strong>article</strong>, bullets → <strong>ul</strong>, onderkant → <strong>footer</strong>.");
+      pill5.textContent = ok + "/" + total + " (oplossing)";
+      say(fb5, "👀 Oplossing getoond. Let op het patroon: kop → <strong>header</strong>, links → <strong>nav</strong>, thema met eigen kop → <strong>section</strong>, zelfstandig bericht → <strong>article</strong>, bullets → <strong>ul</strong>, enkel lay-out → <strong>div</strong>, onderkant → <strong>footer</strong>.");
       setSum(5, "oplossing bekeken", false);
-    } else if (ok === SOEP.length) {
-      say(fb5, "🎉 " + ok + "/" + SOEP.length + " juist — deze div-soep is volledig semantisch verbouwd!");
-      setSum(5, ok + "/" + SOEP.length, true);
+    } else if (ok === total && usedSolution5) {
+      pill5.textContent = ok + "/" + total + " juist · met oplossing";
+      say(fb5, "👀 " + ok + "/" + total + " — maar je hebt de oplossing bekeken. Druk op <strong>Opnieuw</strong> voor een eerlijke poging.");
+      setSum(5, ok + "/" + total + " · met oplossing", false);
+    } else if (ok === total) {
+      pill5.textContent = ok + "/" + total + " juist";
+      say(fb5, "🎉 " + ok + "/" + total + " juist — deze div-soep is volledig semantisch verbouwd!");
+      setSum(5, ok + "/" + total, true);
     } else {
-      say(fb5, "📊 " + ok + "/" + SOEP.length + " juist. De regels met ✗ bekijk je best nog eens: wat <em>is</em> dat blok eigenlijk?");
-      setSum(5, ok + "/" + SOEP.length, false);
+      pill5.textContent = ok + "/" + total + " juist";
+      say(fb5, "📊 " + ok + "/" + total + " juist. De regels met ✗ bekijk je best nog eens: wat <em>is</em> dat blok eigenlijk?");
+      setSum(5, ok + "/" + total, false);
     }
   }
   $("btn5-check").addEventListener("click", function () { checkSoep(false); });
